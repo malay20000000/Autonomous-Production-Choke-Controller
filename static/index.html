@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>A-PCC System | Well Alpha-7 Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Source+Serif+4:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <!-- Add Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --radius: 1rem;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #081310;
+            color: #fff;
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        .font-serif-italic {
+            font-family: 'Source Serif 4', serif;
+            font-style: italic;
+        }
+
+
+
+        /* Liquid Glass Light */
+        .liquid-glass {
+            background: rgba(255,255,255,0.01);
+            background-blend-mode: luminosity;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: none;
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--radius);
+        }
+        .liquid-glass::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            padding: 1.4px;
+            border-radius: inherit;
+            background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%, transparent 40%, transparent 60%, rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        /* Liquid Glass Strong */
+        .liquid-glass-strong {
+            background: rgba(255,255,255,0.02);
+            background-blend-mode: luminosity;
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: none;
+            box-shadow: 4px 4px 12px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.15);
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--radius);
+        }
+        .liquid-glass-strong::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            padding: 1.4px;
+            border-radius: inherit;
+            background: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.2) 20%, transparent 40%, transparent 60%, rgba(255,255,255,0.2) 80%, rgba(255,255,255,0.5) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+
+
+<!-- App Container above video -->
+<div class="relative z-10 w-full h-full flex overflow-hidden">
+
+    <!-- Side Navigation Shell -->
+    <aside class="liquid-glass-strong w-72 h-full flex flex-col p-6 z-50 flex-shrink-0 border-r-0 rounded-none shadow-2xl">
+        <div class="mb-10">
+            <h1 class="text-2xl text-white font-medium tracking-tight mb-1">A-PCC System</h1>
+            <p class="text-[10px] text-white/50 uppercase tracking-widest mt-1">Autonomous Production Choke Controller</p>
+        </div>
+        <nav class="flex-1 space-y-2 w-full">
+            <a class="flex items-center gap-3 px-4 py-3 text-white font-medium bg-white/10 rounded-lg transition-colors border-l-4 border-white/50" href="#">
+                <span class="material-symbols-outlined text-white/80">dashboard</span>
+                <span>Live Overview</span>
+            </a>
+            
+            <div class="mt-10 px-2">
+                <label class="text-[10px] text-white/50 uppercase tracking-widest mb-2 block">Market Oil Price (₹/BBL)</label>
+                <div class="flex items-center gap-2 bg-black/20 p-3 rounded-lg border border-white/10 shadow-inner">
+                    <span class="text-white/80 font-medium">₹</span>
+                    <input type="number" id="oil-price" value="6500" class="bg-transparent border-none text-white w-full focus:ring-0 p-0 text-sm font-mono outline-none">
+                </div>
+            </div>
+        </nav>
+        
+        <button id="download-btn" class="mt-auto liquid-glass py-3 px-4 rounded-full flex items-center justify-center gap-2 hover:bg-white/10 transition-all cursor-pointer w-full text-white/80 hover:text-white" style="--radius: 9999px;">
+            <span class="material-symbols-outlined text-lg">download</span>
+            <span class="text-sm font-medium">Export Report</span>
+        </button>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col h-full relative">
+        
+        <!-- Top Navigation Shell -->
+        <header class="liquid-glass-strong w-full flex justify-between items-center px-8 py-4 z-40 rounded-none border-b-0">
+            <div class="flex items-center gap-8">
+                <div class="flex items-center gap-4 bg-black/20 px-4 py-2 rounded-full border border-white/10 shadow-inner">
+                    <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white/80 text-sm">target</span>
+                    </div>
+                    <input id="target-q" class="bg-transparent border-none focus:ring-0 text-white font-mono w-32 placeholder:text-white/30 outline-none text-sm" placeholder="Target Flow" type="number"/>
+                    <button id="update-target-btn" class="text-[10px] bg-white/20 text-white px-3 py-1.5 rounded-full font-medium uppercase tracking-wider hover:bg-white/30 transition-colors cursor-pointer ml-2">Update</button>
+                </div>
+                <nav class="hidden md:flex gap-6 text-xs uppercase tracking-widest">
+                    <button id="start-btn" class="text-white border-b-2 border-white/50 pb-1 hover:text-white/80 transition-colors cursor-pointer font-medium">Start Simulation</button>
+                    <button id="reset-btn" class="text-white/50 hover:text-white transition-all cursor-pointer font-medium">Reset System</button>
+                </nav>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-3 liquid-glass px-4 py-2 rounded-full" style="--radius: 9999px;">
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+                    </span>
+                    <span class="text-[10px] text-white uppercase tracking-widest font-medium">AI Mode Active</span>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
+                    <span class="material-symbols-outlined text-white/80 text-lg">person</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Canvas -->
+        <main class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+            <div class="max-w-[1600px] mx-auto space-y-6">
+                
+                <!-- Page Header Section -->
+                <div class="flex justify-between items-end mb-8">
+                    <div>
+                        <div class="flex items-center gap-4 mb-2">
+                            <span class="px-2.5 py-1 liquid-glass text-white/80 text-[10px] tracking-widest uppercase rounded shadow-sm">ZONE 4A</span>
+                            <h2 class="text-3xl font-medium tracking-tight text-white">Well Alpha-7 Control</h2>
+                        </div>
+                        <p class="text-white/50 text-[10px] uppercase tracking-widest mt-1">LAT: 28.6139° N | LONG: 77.2090° E • Real-time Sync</p>
+                    </div>
+                </div>
+
+                <!-- Bento Grid Content -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-20">
+                    
+                    <!-- Financial & AI Panel -->
+                    <div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+                        
+                        <!-- Live Daily Revenue -->
+                        <div class="liquid-glass p-8 rounded-3xl relative overflow-hidden group">
+                            <div class="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
+                                <span class="material-symbols-outlined text-8xl text-white">payments</span>
+                            </div>
+                            <p class="text-white/50 text-[10px] uppercase tracking-widest mb-3">Live Daily Revenue</p>
+                            <h3 class="font-mono text-4xl text-white font-medium truncate" id="val-rev">₹0</h3>
+                        </div>
+                        
+                        <!-- AI Confidence Insight -->
+                        <div class="liquid-glass p-8 rounded-3xl relative border-t border-t-white/20">
+                            <div class="flex justify-between items-center mb-5">
+                                <p class="text-white/50 text-[10px] uppercase tracking-widest">AI Prediction Confidence</p>
+                                <span class="text-white font-medium text-lg" id="health-val">100%</span>
+                            </div>
+                            <div class="h-1.5 w-full bg-black/40 rounded-full overflow-hidden shadow-inner">
+                                <div id="health-bar-fill" class="h-full bg-white w-[100%] shadow-[0_0_10px_rgba(255,255,255,0.8)] transition-all duration-300"></div>
+                            </div>
+                            <div class="mt-8">
+                                <p class="text-white/40 text-[10px] uppercase tracking-widest mb-3">MPC Logic Cluster</p>
+                                <div class="p-4 bg-black/20 rounded-xl border border-white/5">
+                                    <p class="text-sm font-serif-italic text-white/80 leading-relaxed">"Optimizing for Flowrate; Safety Constraints Within Nominal Range."</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Alarm Console -->
+                        <div class="liquid-glass p-6 rounded-3xl relative flex flex-col h-[260px]">
+                            <p class="text-white/50 text-[10px] uppercase tracking-widest mb-4 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm text-white/80">campaign</span> Live Alarm Console
+                            </p>
+                            <div id="event-log" class="overflow-y-auto h-full text-[11px] font-mono space-y-2 custom-scrollbar pr-2 leading-relaxed">
+                                <div class="py-1 text-white/50 border-b border-white/5">System initialized. Waiting to start simulation...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Central Control Area (Real-time Chart) -->
+                    <div class="col-span-12 lg:col-span-8 liquid-glass p-8 rounded-3xl flex flex-col">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h3 class="text-xl font-medium tracking-tight mb-1">Flow Dynamics Telemetry</h3>
+                                <p class="text-[10px] uppercase tracking-widest text-white/50">Real-time Data Frequency</p>
+                            </div>
+                            <div class="flex gap-5 bg-black/20 px-4 py-2 rounded-full border border-white/5">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]"></span>
+                                    <span class="text-[10px] tracking-widest uppercase text-white/80 font-medium">Actual Flow</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-white/40 border border-white/20"></span>
+                                    <span class="text-[10px] tracking-widest uppercase text-white/80 font-medium">Target MPC</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-1 relative w-full h-[400px]">
+                            <canvas id="flowChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Safety Constraints & Pressure Panel -->
+                    <div class="col-span-12 liquid-glass p-10 rounded-3xl mt-2">
+                        <div class="flex items-center gap-3 mb-10">
+                            <span class="material-symbols-outlined text-white text-2xl shadow-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">security</span>
+                            <h3 class="text-xl font-medium tracking-tight">Structural Safety Constraints</h3>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
+                            
+                            <!-- Pressure Gauge WHP -->
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-36 h-36 flex items-center justify-center">
+                                    <svg class="w-full h-full transform -rotate-90">
+                                        <circle cx="72" cy="72" fill="none" r="64" stroke="rgba(0,0,0,0.3)" stroke-width="6"></circle>
+                                        <circle cx="72" cy="72" fill="none" r="64" stroke="rgba(255,255,255,0.9)" stroke-dasharray="402" stroke-dashoffset="120" stroke-width="6" stroke-linecap="round"></circle>
+                                    </svg>
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                        <span class="text-3xl font-mono font-medium" id="val-whp">329</span>
+                                        <span class="text-[10px] text-white/50 uppercase tracking-widest mt-1">psi</span>
+                                    </div>
+                                </div>
+                                <p class="mt-5 text-[10px] tracking-widest uppercase text-white/80 font-medium">WHP (Wellhead)</p>
+                            </div>
+                            
+                            <!-- Pressure Gauge FLP -->
+                            <div class="flex flex-col items-center">
+                                <div class="relative w-36 h-36 flex items-center justify-center">
+                                    <svg class="w-full h-full transform -rotate-90">
+                                        <circle cx="72" cy="72" fill="none" r="64" stroke="rgba(0,0,0,0.3)" stroke-width="6"></circle>
+                                        <circle cx="72" cy="72" fill="none" r="64" stroke="rgba(255,255,255,0.5)" stroke-dasharray="402" stroke-dashoffset="200" stroke-width="6" stroke-linecap="round"></circle>
+                                    </svg>
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                        <span class="text-3xl font-mono font-medium" id="val-flp">218</span>
+                                        <span class="text-[10px] text-white/50 uppercase tracking-widest mt-1">psi</span>
+                                    </div>
+                                </div>
+                                <p class="mt-5 text-[10px] tracking-widest uppercase text-white/80 font-medium">FLP (Flowline)</p>
+                            </div>
+                            
+                            <!-- Technical Chips / Data Density Section -->
+                            <div class="md:col-span-2 grid grid-cols-2 gap-6">
+                                <div class="bg-black/20 p-5 border border-white/5 rounded-2xl shadow-inner flex flex-col justify-center">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <span class="text-[10px] text-white/60 uppercase font-medium tracking-widest">Flow Rate (Q)</span>
+                                        <span class="material-symbols-outlined text-sm text-white/40">water_drop</span>
+                                    </div>
+                                    <div class="flex items-baseline gap-2">
+                                        <span class="text-3xl font-mono font-medium text-white" id="val-q">0.0</span>
+                                        <span class="text-[10px] uppercase tracking-widest text-white/40">bbl/hr</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-black/20 p-5 border border-white/5 rounded-2xl shadow-inner flex flex-col justify-center">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <span class="text-[10px] text-white/60 uppercase font-medium tracking-widest">Choke Position</span>
+                                        <span class="material-symbols-outlined text-sm text-white/40">settings_input_component</span>
+                                    </div>
+                                    <div class="flex items-baseline gap-2">
+                                        <span class="text-3xl font-mono font-medium text-white" id="val-choke">0.0</span>
+                                        <span class="text-[10px] uppercase tracking-widest text-white/40">%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-black/20 p-6 border border-white/5 rounded-2xl col-span-2 mt-2 shadow-inner">
+                                    <h3 class="text-[10px] uppercase font-medium tracking-widest text-white/60 mb-4">Secondary Pressure Telemetry</h3>
+                                    <div style="height: 160px; width: 100%;">
+                                        <canvas id="pressureChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="/static/script.js"></script>
+</body>
+</html>
