@@ -1,24 +1,41 @@
-# Autonomous Production Choke Controller
+# A-PCC (Autonomous Production Choke Controller)
 
-An advanced, data-driven AI control system designed to autonomously regulate oil well production choke valves. Built for the Honeywell Hackathon, this project solves the challenge of non-linear choke behavior, extreme system delays, and strict safety constraints using an advanced Model Predictive Control (MPC) strategy.
+An advanced, data-driven AI control system designed to autonomously regulate oil well production choke valves. Built for the Honeywell Hackathon, this project solves the challenge of non-linear choke behavior, extreme system delays, and strict safety constraints using an advanced Model Predictive Control (MPC) strategy, all wrapped in a stunning cinematic user interface.
 
-## 🚀 Key Features & Innovations
+## 🚀 How It Works (Project Description)
 
-### 1. Data-Driven Physics Simulator
-Instead of relying on theoretical equations, the internal physics engine is entirely data-driven. The simulator was mathematically reverse-engineered directly from the provided `Autonomous_Choke_Control_Simulated_Dataset.csv`. 
-* Polynomial regression was used to extract the exact nonlinear characteristics of Flow Rate (Q), Wellhead Pressure (WHP), Flowline Pressure (FLP), and Bottomhole Pressure (BHP) with respect to the Choke Position.
-* The simulator guarantees 100% adherence to the hackathon dataset's physics.
+The A-PCC acts as an autonomous brain for an oil well. In traditional oil & gas operations, human operators or basic PID controllers struggle to manage choke valves because the valves are highly non-linear—meaning a 1% turn at the start causes a massive pressure spike, but a 1% turn at the end does almost nothing. 
 
-### 2. Advanced AI Controller (MPC with Gain Scheduling)
-Standard PID controllers fail in oil and gas due to the extreme non-linearity of choke valves (highly sensitive at low openings, deaf at high openings). This project implements an advanced **Model Predictive Controller (MPC)**.
-* **Dynamic Gain Scheduling:** The AI dynamically calculates the real-time mathematical derivatives (Jacobian) of the system at every time step. This allows the controller to instantly understand the valve's sensitivity regardless of its current position.
-* **Move Suppression Penalty:** The objective function penalizes erratic valve movements, ensuring smooth, highly stable convergence to the target flow rate without the violent hunting/oscillations common in basic controllers.
-* **Hard Constraint Tracking:** The AI looks ahead to predict future pressures and absolutely refuses any choke movement that would violate the safety limits (`1900 < WHP < 3000` psi, `200 < FLP < 500` psi).
+To solve this, our system employs **Model Predictive Control (MPC)**:
+1. **Target Setting**: The operator sets a target flow rate (e.g., 200 bbl/hr).
+2. **Predictive Simulation**: The AI looks ahead in time, testing thousands of potential valve movements mathematically before actually moving the physical valve.
+3. **Safety First**: It checks the predicted future states against strict safety constraints (`1900 < WHP < 3000` psi, `200 < FLP < 500` psi). If a movement would cause a pipeline rupture or pressure violation, the AI refuses to execute it.
+4. **Smooth Execution**: It calculates the exact optimal choke position to reach the target flow rate smoothly, eliminating the dangerous "hunting" and oscillation that plagues basic controllers.
 
-### 3. Live Economics & Revenue Tracker
+## 💻 Tech Stack
+
+### Frontend Architecture
+- **HTML5 & Vanilla JavaScript**: Pure, lightweight implementation for maximum performance.
+- **Tailwind CSS**: Utility-first styling framework used to construct the layout.
+- **Liquid Glass Morphism UI**: A custom-engineered aesthetic featuring deeply blurred frosted glass (`backdrop-filter`) overlaid on a high-definition cinematic, looping video background for a hyper-premium, futuristic feel.
+- **Chart.js**: Real-time, 60fps data visualization for plotting live flow dynamics (Actual vs Target) and secondary pressure telemetry (WHP, FLP, BHP).
+
+### Backend & AI Engine
+- **Python 3.10+**: The core language powering the intelligence.
+- **FastAPI**: An ultra-fast, modern web framework used to serve the frontend and handle real-time HTTP API requests between the dashboard and the AI engine.
+- **Uvicorn**: Lightning-fast ASGI server to run the FastAPI application.
+- **Custom MPC Controller (`controller.py`)**: A proprietary Model Predictive Controller written in pure Python that utilizes dynamic gain scheduling (Jacobian derivative calculations) to understand the non-linear sensitivity of the valve in real-time.
+- **Data-Driven Physics Simulator (`simulator.py`)**: A reverse-engineered physics engine built using polynomial regression to perfectly mimic the Honeywell dataset constraints and behaviors. 
+
+## ⚡ Key Innovations
+
+### 1. Dynamic Gain Scheduling
+The AI dynamically calculates the real-time mathematical derivatives of the system at every time step. This allows the controller to instantly understand the valve's sensitivity regardless of its current position.
+
+### 2. Live Economics & Revenue Tracker
 Optimization algorithms are ultimately about business value. The system features a real-time economics tracker that dynamically calculates live revenue generated by the well based on current oil prices, outputting the cumulative financial impact in **Indian Rupees (₹)**.
 
-### 4. 100% Local & Self-Contained
+### 3. 100% Local & Self-Contained
 The entire intelligence of the system runs completely locally without requiring cloud APIs, internet connectivity, or paid subscriptions. It is a robust, edge-deployable algorithm.
 
 ## 🛠️ Installation & Setup
@@ -34,4 +51,4 @@ The entire intelligence of the system runs completely locally without requiring 
    ```
 
 3. **Interact:**
-   Open your browser to `http://localhost:8000` to interact with the controller. Simply set a Target Flow Rate, define the current Oil Price (₹), and watch the AI autonomously govern the well!
+   Open your browser to `http://localhost:8000` to interact with the system. Click "Launch System" on the cinematic landing page to enter the dashboard, set a Target Flow Rate, define the current Oil Price (₹), and watch the AI autonomously govern the well!
